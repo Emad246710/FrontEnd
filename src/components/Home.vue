@@ -2,16 +2,19 @@
 
 <div class="us">
 <h2>qqqqqqqqq</h2>
+  <NavBar/>
+  <router-view />
 </div>
 
 </template>
 
 <script>
 import { defineProps, reactive } from "vue";
+import NavBar from "./NavBar.vue";
 
 export default {
 components:{
-
+  NavBar,
 }
 }
 
