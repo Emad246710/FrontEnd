@@ -5,16 +5,23 @@
       :message="formattedError.message"
     />
   </div>
-  <div v-else-if="notes">
-    <!-- <input type="text" placeholder="Filter Search" v-model="query" />
-    <button @click="reset">Reset</button> -->
-    <p>Notes</p>
+  <div v-else-if="filteredNotes">
+  <div>
+    <label for="input-filter">Filter by username:</label>
+    <input type="text" id="input-filter" v-model="query" />
+  </div>
+  <button @click="reset">Reset</button>
 
-    <div v-for="item in notes" :key="item.id">
-      <note-card v-bind="item" />
-    </div>
+  <p>Notes</p>
+
+  <p>Showing {{ filteredNotes.length }} results for "{{ query }}"</p>
+  <div v-for="item in filteredNotes" :key="item.id">
+    <note-card v-bind="item" />
+  </div>
   </div>
 </template>
+
+
 
 <script>
 import { computed } from "vue";
@@ -23,7 +30,8 @@ import { GET_ALL_NOTES_ACT } from "../storeDef";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
 import NoteCard from "./NoteCard.vue";
-import { ref } from "vue";
+import { ref, unref } from "vue";
+
 
 export default {
   components: {
@@ -42,16 +50,26 @@ export default {
     const reset = (evt) => {
       query.value = ""; // clears the query
     };
-    // const filteredItems = computed(() => {
-    //   return categories.filter((item) => {
-    //     return item.content.toLowerCase().includes(query.toLowerCase());
-    //   });
-    // });
+
+    const filteredNotes = computed(() => {
+      const unwrapped = JSON.parse(JSON.stringify(notes.value));
+      let tempNotes = unwrapped;
+      console.log(tempNotes)
+      if (query.value != "" && query.value) {
+        tempNotes = tempNotes.filter((note) =>
+          note.content.toLowerCase().includes(query.value.toLowerCase())
+        );
+      }
+      console.log(tempNotes)
+
+      return tempNotes;
+    });
+
 
     return {
       store,
-      notes,
-      //filteredItems,
+      //notes,
+      filteredNotes,
       query,
       reset,
       formattedError,

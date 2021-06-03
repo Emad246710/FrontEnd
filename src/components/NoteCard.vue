@@ -49,11 +49,11 @@ export default {
     },
     categoryId: {
       type: Number,
-      required: true,
+      required: false,
     },
     priority: {
       type: Number,
-      required: true,
+      required: false,
     },
     createdOn: {
       type: String,
