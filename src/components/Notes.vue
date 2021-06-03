@@ -1,25 +1,39 @@
 <template>
-<!-- <input type="text" placeholder="Filter Search" v-model="query" />
+  <div v-if="formattedError.title && formattedError.message">
+    <err-presenter
+      :title="formattedError.title"
+      :message="formattedError.message"
+    />
+  </div>
+  <div v-else-if="notes">
+    <!-- <input type="text" placeholder="Filter Search" v-model="query" />
     <button @click="reset">Reset</button> -->
-  <p>Notes</p>
-  <ul>
-    <li v-for="(x, index) in notes" :key="x.id">
-        id: {{ index +1 }}
-        <br />
+    <p>Notes</p>
 
-        {{ x.content }}
-    </li>
-  </ul>
+    <div v-for="item in notes" :key="item.id">
+      <note-card v-bind="item" />
+    </div>
+  </div>
 </template>
 
 <script>
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { GET_ALL_NOTES_ACT } from "../storeDef";
+import { errHandler } from "../util.js";
+import ErrPresenter from "./ErrPresenter.vue";
+import NoteCard from "./NoteCard.vue";
 import { ref } from "vue";
 
 export default {
+  components: {
+    ErrPresenter,
+    NoteCard,
+  },
   setup() {
     const store = useStore();
+    const formattedError = ref({ title: null, message: null });
+
     const notes = computed(() => store.state.notes);
     console.log(notes);
 
@@ -27,29 +41,35 @@ export default {
 
     const reset = (evt) => {
       query.value = ""; // clears the query
-      };
-       // const filteredItems = computed(() => {
+    };
+    // const filteredItems = computed(() => {
     //   return categories.filter((item) => {
     //     return item.content.toLowerCase().includes(query.toLowerCase());
     //   });
     // });
-
 
     return {
       store,
       notes,
       //filteredItems,
       query,
-      reset
+      reset,
+      formattedError,
     };
-
   },
-   
-  created() {
-    this.store.dispatch("getAllNotes");
+
+  async created() {
+    try {
+      await this.store.dispatch(GET_ALL_NOTES_ACT);
+      this.formattedError = { title: null, message: null };
+    } catch (err) {
+      this.formattedError = errHandler(err);
+    } finally {
+    }
   },
 };
 </script>
 
 <style>
 </style>
+

@@ -1,7 +1,7 @@
 <template>
 
 <div class="us">
-<h2>qqqqqqqqq</h2>
+<h2>Diary</h2>
   <NavBar/>
   <router-view />
 </div>

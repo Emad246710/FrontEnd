@@ -1,12 +1,12 @@
 <template>
-  <div >
+  <div>
     <router-link :to="{ name: 'root' }">Home</router-link>
     <br />
     <br />
     <router-link :to="{ name: 'notes' }">Notes</router-link>
     <br />
     <br />
-    <router-link :to="{ name: 'note' , params: {id:1} }">note</router-link>
+    <router-link :to="{ name: 'note', params: { id: 1 } }">note</router-link>
     <br />
     <br />
     <router-link :to="{ name: 'login' }">login</router-link>
@@ -15,25 +15,31 @@
     <router-link :to="{ name: 'signup' }">signup</router-link>
     <br />
     <br />
-    <router-link :to="{ name: 'user' , params: {id:1} }">user</router-link>
+    <router-link :to="{ name: 'user', params: { id: 1 } }">user</router-link>
     <br />
     <br />
     <router-link :to="{ name: 'categories' }">categories</router-link>
     <br />
     <br />
-    <router-link :to="{ name: 'category' , params: {id:1} }">category</router-link>
+    <router-link :to="{ name: 'category', params: { id: 1 } }">
+      category
+    </router-link>
     <br />
     <br />
     <router-link :to="{ name: 'note_create' }">note_create</router-link>
     <br />
     <br />
-    <!-- <router-link :to="{ name: 'user_edit' }">user_edit</router-link> -->
+    <router-link :to="{ name: 'user_edit', params: { id: 1 } }">
+      user_edit
+    </router-link>
     <br />
     <br />
-    <!-- <router-link :to="{ name: 'note_edit' }">note_edit</router-link> -->
+    <router-link :to="{ name: 'note_edit', params: { id: 1 } }"
+      >note_edit</router-link
+    >
     <br />
     <br />
-    <!-- <router-link :to="{ name: 'category_edit' }">category_edit</router-link> -->
+    <router-link :to="{ name: 'category_edit' , params: { id: 1 }}">category_edit</router-link>
     <br />
     <br />
     <router-link :to="{ name: 'category_create' }">category_create</router-link>
