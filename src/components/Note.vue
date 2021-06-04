@@ -11,8 +11,8 @@
     <p>CreatedOn: {{ note.createdOn }}</p>
     <p>Priority: {{ note.priority }}</p>
     <p>UserId: {{ note.userId }}</p>
-    <p>CategoryId: {{ note.categoryId }}</p>
-    <button type="submit" @click.prevent="deleteNote">Delete</button>
+    <p>Category: {{ note.category.type }}</p>
+    <button class="btn btn-secondary" type="submit" @click.prevent="deleteNote">Delete</button>
   </div>
 </template>
 

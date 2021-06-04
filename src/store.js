@@ -4,13 +4,13 @@ import axios from "axios";
 import {
     URI_ROOT,
 
-    LOGIN_MUT, LOGOUT_MUT, SIGNUP_MUT, EDIT_USER_MUT, DELETE_USER_MUT,
+    LOGIN_MUT, LOGOUT_MUT,GET_USE_MUT,  DELETE_USER_MUT,
 
-    GET_ALL_NOTES_MUT, GET_NOTE_MUT, EDIT_NOTE_MUT, CREATE_NOTE_MUT, DELETE_NOTE_MUT,
-    GET_ALL_CATEGORIES_MUT, GET_CATEGORY_MUT, EDIT_CATEGORY_MUT, CREATE_CATEGORY_MUT, DELETE_CATEGORY_MUT,
+    GET_ALL_NOTES_MUT, GET_NOTE_MUT, DELETE_NOTE_MUT,
+    GET_ALL_CATEGORIES_MUT, GET_CATEGORY_MUT,  DELETE_CATEGORY_MUT,
 
 
-    LOGIN_ACT, LOGOUT_ACT, SIGNUP_ACT, EDIT_USER_ACT, DELETE_USER_ACT,
+    LOGIN_ACT, LOGOUT_ACT,GET_USER_ACT, SIGNUP_ACT, EDIT_USER_ACT, DELETE_USER_ACT,
     GET_ALL_NOTES_ACT, GET_NOTE_ACT, EDIT_NOTE_ACT, CREATE_NOTE_ACT, DELETE_NOTE_ACT,
     GET_ALL_CATEGORIES_ACT, GET_CATEGORY_ACT, EDIT_CATEGORY_ACT, CREATE_CATEGORY_ACT, DELETE_CATEGORY_ACT,
 
@@ -23,7 +23,7 @@ import {
 const state = {
     current_user: {
         id: 1,
-        username: 'user1',
+        username: "user1",
     },
     notes: {
     },
@@ -75,7 +75,21 @@ const actions = {
         commit(LOGOUT_MUT)
     },
 
-    [SIGNUP_ACT]: async ({ commit }, { username, password }) => {
+    [GET_USER_ACT]: async ({ commit }, id) => {
+        let config = {
+            method: "get",
+            url: URI_ROOT + "/users/" + id ,
+
+            withCredentials: true,
+        };
+        let response = await axios(config);
+        let user = response.data;
+
+        commit(GET_USE_MUT, user)
+    },
+
+
+    [SIGNUP_ACT]: async ({ commit, dispatch }, { username, password }) => {
         let config = {
             method: "post",
             url: URI_ROOT + "/users",
@@ -86,8 +100,9 @@ const actions = {
             withCredentials: true,
         };
         let response = await axios(config);
-        let user = response.data.current_user;
-        commit(SIGNUP_MUT, user)
+        let user_id = response.data.id;
+        dispatch(GET_USER_ACT, user_id)
+
     },
     [EDIT_USER_ACT]: async ({ commit }, { username, password, id }) => {
 
@@ -101,8 +116,8 @@ const actions = {
             withCredentials: true,
         };
         let response = await axios(config);
-        let user = response.data.current_user;
-        commit(EDIT_USER_MUT, user)
+        let user_id = response.data.id;
+        dispatch(GET_USER_ACT, user_id)
     },
     [DELETE_USER_ACT]: async ({ commit }, id) => {
         let config = {
@@ -121,7 +136,7 @@ const actions = {
     [GET_ALL_NOTES_ACT]: async ({ commit }) => {
         let config = {
             method: "get",
-            url: URI_ROOT + "/users/" +state.current_user.id+ "/notes",
+            url: URI_ROOT + "/users/" + state.current_user.id + "/notes",
             withCredentials: true,
         };
         let response = await axios(config);
@@ -132,7 +147,7 @@ const actions = {
     [GET_NOTE_ACT]: async ({ commit }, id) => {
         let config = {
             method: "get",
-            url: URI_ROOT + "/users/" +state.current_user.id+  "/notes/" + id,
+            url: URI_ROOT + "/users/" + state.current_user.id + "/notes/" + id,
 
             withCredentials: true,
         };
@@ -142,21 +157,20 @@ const actions = {
         commit(GET_NOTE_MUT, note)
     },
 
-    [EDIT_NOTE_ACT]: async ({ commit , dispatch}, note) => {
+    [EDIT_NOTE_ACT]: async ({ commit, dispatch }, note) => {
 
         let { id } = note
         let config = {
             method: "put",
-            url: URI_ROOT + "/users/" +state.current_user.id+  "/notes/" + id,
+            url: URI_ROOT + "/users/" + state.current_user.id + "/notes/" + id,
 
             withCredentials: true,
             data: note
         };
         let response = await axios(config);
-        let note_res = response.data;
-        // console.log(note_res)
-        commit(EDIT_NOTE_MUT, note_res)
-        dispatch(GET_ALL_NOTES_ACT)
+        let updated_note_id = response.data.id;
+
+        dispatch(GET_NOTE_ACT, updated_note_id)
     },
 
 
@@ -165,22 +179,21 @@ const actions = {
 
         let config = {
             method: "post",
-            url: URI_ROOT + "/users/" +state.current_user.id+  "/notes",
+            url: URI_ROOT + "/users/" + state.current_user.id + "/notes",
 
             withCredentials: true,
             data: note
         };
         let response = await axios(config);
-        let note_res = response.data;
-        commit(CREATE_NOTE_MUT, note_res)
-        dispatch(GET_ALL_NOTES_ACT)
+        let updated_note_id = response.data.id;
+        dispatch(GET_NOTE_ACT, updated_note_id)
 
     },
 
-    [DELETE_NOTE_ACT]: async ({ commit , dispatch }, id) => {
+    [DELETE_NOTE_ACT]: async ({ commit, dispatch }, id) => {
         let config = {
             method: "delete",
-            url: URI_ROOT + "/users/" +state.current_user.id+  "/notes/" + id,
+            url: URI_ROOT + "/users/" + state.current_user.id + "/notes/" + id,
 
             withCredentials: true,
         };
@@ -226,24 +239,22 @@ const actions = {
             data: category
         };
         let response = await axios(config);
-        let category_res = response.data;
-        commit(EDIT_CATEGORY_MUT, category_res)
-        dispatch(GET_ALL_CATEGORIES_ACT)
+        let updated_category_id = response.data.id;
+        dispatch(GET_CATEGORY_ACT, updated_category_id)
 
     },
 
-    [CREATE_CATEGORY_ACT]: async ({ commit , dispatch }, category) => {
+    [CREATE_CATEGORY_ACT]: async ({ commit, dispatch }, category) => {
         let config = {
             method: "post",
-            url: URI_ROOT + "/users/" + state.current_user.id + "/categories" ,
+            url: URI_ROOT + "/users/" + state.current_user.id + "/categories",
 
             withCredentials: true,
             data: category
         };
         let response = await axios(config);
-        let category_res = response.data;
-        commit(CREATE_CATEGORY_MUT, category_res)
-        dispatch(GET_ALL_CATEGORIES_ACT)
+        let updated_category_id = response.data.id;
+        dispatch(GET_CATEGORY_ACT, updated_category_id)
 
     },
 
@@ -272,13 +283,13 @@ const mutations = {
             id: null,
             username: null,
         }
+        state.notes = {}
+        state.categories = {}
     },
-    [SIGNUP_MUT]: (state, user) => {
+    [GET_USE_MUT]: (state, user) => {
         state.current_user = user
     },
-    [EDIT_USER_MUT]: (state, user) => {
-        state.current_user = user
-    },
+
     [DELETE_USER_MUT]: (state) => {
         state.current_user = {
             id: null,
@@ -298,15 +309,15 @@ const mutations = {
         console.log(state.notes)
     },
 
-    [EDIT_NOTE_MUT]: (state, note) => {
-        let { id } = note
-        state.notes[id] = note
-    },
+    // [EDIT_NOTE_MUT]: (state, note) => {
+    //     let { id } = note
+    //     state.notes[id] = note
+    // },
 
-    [CREATE_NOTE_MUT]: (state, note) => {
-        let { id } = note
-        state.notes[id] = note
-    },
+    // [CREATE_NOTE_MUT]: (state, note) => {
+    //     let { id } = note
+    //     state.notes[id] = note
+    // },
 
     [DELETE_NOTE_MUT]: (state, id) => {
         delete state.notes[id]
@@ -325,15 +336,15 @@ const mutations = {
         state.categories[id] = category
     },
 
-    [EDIT_CATEGORY_MUT]: (state, category) => {
-        let { id } = category
-        state.categories[id] = category
-    },
+    // [EDIT_CATEGORY_MUT]: (state, category) => {
+    //     let { id } = category
+    //     state.categories[id] = category
+    // },
 
-    [CREATE_CATEGORY_MUT]: (state, category) => {
-        let { id } = category
-        state.categories[id] = category
-    },
+    // [CREATE_CATEGORY_MUT]: (state, category) => {
+    //     let { id } = category
+    //     state.categories[id] = category
+    // },
 
     [DELETE_CATEGORY_MUT]: (state, id) => {
         delete state.categories[id]

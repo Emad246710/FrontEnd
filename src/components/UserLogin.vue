@@ -36,7 +36,7 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button type="submit" :disabled="!meta.dirty || isSubmitting">
+      <button class="btn btn-secondary" type="submit" :disabled="!meta.dirty || isSubmitting">
         Submit
       </button>
       <div v-if="formattedError.title && formattedError.message">
@@ -51,6 +51,8 @@
 
 <script>
 import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+
 import { LOGIN_ACT } from "../storeDef.js";
 
 import { useForm, useField, defineRule } from "vee-validate";
@@ -79,6 +81,8 @@ export default {
 
   setup(props) {
     const store = useStore();
+    const router = useRouter();
+    const route = useRoute();
 
     // Define a validation schema
     const myValidationSchema = {
@@ -113,7 +117,8 @@ export default {
 
         if (!v) return "Password is a required field!";
 
-        let pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        // let pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        let pattern = /^.*$/;
         let valid = pattern.test(String(v));
 
         if (valid) {
@@ -142,7 +147,10 @@ export default {
       try {
         await store.dispatch(LOGIN_ACT, values);
 
+
         formattedError.value = { title: null, message: null };
+        let redirect_to_name = route.query.redirect_to_name || "notes";
+        router.push({ name: redirect_to_name });
       } catch (err) {
         formattedError.value = errHandler(err);
         console.log(formattedError);

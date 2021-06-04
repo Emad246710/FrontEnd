@@ -16,20 +16,18 @@ import { IS_LOGGED_IN } from './storeDef';
 
 const castIdToInt=(route)=>{
   let temp = Number.parseInt(route.params.id);
-  console.log(temp)
-  console.log(route.params)
   return {id:temp};  
 }
 
 const routes = [
   {
-    path: '/', name: 'root', component: Home, meta: { requiresAuth: false }
+    path: '/', name: 'root', redirect:{name:'notes'}
   },
 
   { path: '/login', name: 'login', component: Login , meta: { requiresAuth: false }},
   { path: '/signup', name: 'signup', component: UserForm , meta: { requiresAuth: false }},
 
-  { path: '/users/:id', name: 'user', component: User, props: castIdToInt , meta: { requiresAuth: true } }, // Pass route.params to props
+  { path: '/user', name: 'user', component: User , meta: { requiresAuth: true } }, // Pass route.params to props
   { path: '/users/form/:id', name: 'user_edit', component: UserForm, props: castIdToInt , meta: { requiresAuth: true }}, // Pass route.params to props
 
   { path: '/notes', name: 'notes', component: Notes , meta: { requiresAuth: true }},
@@ -54,13 +52,15 @@ router.beforeEach((to, from) => {
   // instead of having to check every route record with
   // to.matched.some(record => record.meta.requiresAuth)
 
+
   if (to.meta.requiresAuth && !store.getters[IS_LOGGED_IN]) {  
     // this route requires auth, check if logged in
     // if not, redirect to login page.
+    store.commit(LOGOUT_MUT)
     return {
       name: 'login',
       // save the location we were at to come back later
-      query: { redirect: to.fullPath },
+      query: { redirect_to_name: to.name },
     }
   }
   return true

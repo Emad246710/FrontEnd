@@ -1,57 +1,122 @@
 <template>
-  <div>
-    <router-link :to="{ name: 'root' }">Home</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'notes' }">Notes</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'note', params: { id: 1 } }">note</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'login' }">login</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'signup' }">signup</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'user', params: { id: 1 } }">user</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'categories' }">categories</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'category', params: { id: 1 } }">
-      category
-    </router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'note_create' }">note_create</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'user_edit', params: { id: 1 } }">
-      user_edit
-    </router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'note_edit', params: { id: 1 } }"
-      >note_edit</router-link
-    >
-    <br />
-    <br />
-    <router-link :to="{ name: 'category_edit' , params: { id: 1 }}">category_edit</router-link>
-    <br />
-    <br />
-    <router-link :to="{ name: 'category_create' }">category_create</router-link>
-  </div>
+  <nav
+    id="sidebarMenu"
+    class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
+  >
+    <div class="position-sticky pt-3">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <router-link :to="{ name: 'notes' }" class="nav-link">
+            <span data-feather="home"></span>
+            Notes</router-link
+          >
+        </li>
+        <li class="nav-item">
+          <router-link :to="{ name: 'categories' }" class="nav-link">
+            <span data-feather="file"></span>
+            categories
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+          <router-link class="nav-link" :to="{ name: 'note_create' }">
+            <span data-feather="users"></span>
+            note_create
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+
+          <router-link class="nav-link" :to="{ name: 'category_create' }">
+            <span data-feather="users"></span>
+            category_create
+          </router-link>
+        </li>
+
+
+        <li class="nav-item">
+          
+          <router-link class="nav-link" :to="{ name: 'login' }">
+            <span data-feather="layers"></span>
+            login
+          </router-link>
+        </li>
+        
+
+        <li class="nav-item">
+         
+          <router-link class="nav-link" :to="{ name: 'signup' }">
+            <span data-feather="file-text"></span>
+            signup
+          </router-link>
+        </li>
+        <li class="nav-item">
+          
+          <router-link
+            class="nav-link"
+            :to="{ name: 'note', params: { id: 1 } }"
+          >
+            <span data-feather="file-text"></span>
+
+            note
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+          <router-link
+            class="nav-link"
+            :to="{ name: 'category_edit', params: { id: 1 } }"
+          >
+            <span data-feather="file-text"></span>
+
+            category_edit
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+          <router-link
+            class="nav-link"
+            :to="{ name: 'user_edit', params: { id: 1 } }"
+          >
+            <span data-feather="file-text"></span>
+
+            user_edit
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+          <router-link
+            class="nav-link"
+            :to="{ name: 'note_edit', params: { id: 1 } }"
+          >
+            <span data-feather="file-text"></span>
+            note_edit
+          </router-link>
+        </li>
+
+        <li class="nav-item">
+          
+          <router-link
+            class="nav-link"
+            :to="{ name: 'user' }"
+          >
+            <span data-feather="file-text"></span>
+            user
+          </router-link>
+        </li>
+      </ul>
+    </div>
+  </nav>
 </template>
 
-<style scoped>
-div {
-  grid-area: nav;
-  border: 5px solid;
-  margin-right: 0.75rem;
-  padding: 0.3rem;
-  background-color: beige;
-}
+<script>
+export default {};
+</script>
+
+<style>
 </style>

@@ -8,7 +8,7 @@
   <div v-else-if="category">
     <p>ID: {{ category.id }}</p>
     <p>Type: {{ category.type }}</p>
-    <button type="submit" @click.prevent="deleteCategory">Delete</button>
+    <button class="btn btn-secondary" type="submit" @click.prevent="deleteCategory">Delete</button>
   </div>
 </template>
 

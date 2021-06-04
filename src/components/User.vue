@@ -9,7 +9,7 @@
   <div v-else-if="user">
     <p>IDfsdff: {{ user.id }}</p>
     <p>Username: {{ user.username }}</p>
-    <button type="submit" @click.prevent="deleteUser">Delete</button>
+    <button class="btn btn-secondary" type="submit" @click.prevent="deleteUser">Delete</button>
   </div>
 </template>
 

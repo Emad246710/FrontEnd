@@ -15,9 +15,8 @@
       <button type="button" class="btn btn-primary" @click.prevent="editCategory">
          Edit
       </button>
-      <button
+      <button class="btn btn-secondary"
         type="button"
-        class="btn btn-primary"
         @click.prevent="deleteCategory"
       >
         Delete
@@ -29,7 +28,7 @@
 <script>
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
-import { ref } from "vue";
+import { ref , watch} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import {DELETE_CATEGORY_ACT} from "../storeDef.js"
@@ -50,7 +49,7 @@ export default {
     },
     userId: {
       type: Number,
-      required: true,
+      required: false,
     },
   },
   setup(props, context) {
@@ -74,11 +73,18 @@ export default {
     const editCategory = () => {
       router.push({ name: "category_edit", params: { id: props.id } });
     };
+    const id = ref(props.id);
+    const type = ref(props.type);
+
+    watch(props, (currentValue, oldValue) => {
+      id.value = currentValue.id;
+      type.value = currentValue.type;
+    });
+
 
     return {
-      id: props.id,
-      type: props.type,
-      userId: props.userId,
+      id,
+      type,
       deleteCategory,
       editCategory,
       formattedError,

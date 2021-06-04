@@ -1,10 +1,10 @@
 <template>
   <div v-if="formattedError.title && formattedError.message">
-        <err-presenter
-          :title="formattedError.title"
-          :message="formattedError.message"
-        />
-      </div>
+    <err-presenter
+      :title="formattedError.title"
+      :message="formattedError.message"
+    />
+  </div>
 
   <form @submit="onSubmit">
     <div class="formContainer">
@@ -25,9 +25,14 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button type="submit" :disabled="!meta.dirty || isSubmitting">
+      <button
+        class="btn btn-secondary"
+        type="submit"
+        :disabled="!meta.dirty || isSubmitting"
+      >
         Submit
       </button>
+      <button class="btn btn-dark" @click="cancel">Cancel</button>
     </div>
   </form>
 </template>
@@ -39,6 +44,7 @@ import { computed } from "vue";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
 import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import {
   EDIT_CATEGORY_ACT,
@@ -67,6 +73,7 @@ export default {
   setup(props) {
     let formMode = props.id ? FormMode.EDIT : FormMode.CREATE;
     const store = useStore();
+    const router = useRouter();
 
     // Define a validation schema
     const myValidationSchema = {
@@ -117,6 +124,7 @@ export default {
       handleSubmit,
       isSubmitting, // to be used inside validatingfuncs inside "validationSchema", inorder to validate ONLY after submittion
       setFieldError,
+      resetForm,
       setErrors, // can be used to set err manually, for ex. unique email validation inside  "handleSubmit"
     } = useForm({
       validationSchema: myValidationSchema,
@@ -132,16 +140,21 @@ export default {
       try {
         await store.dispatch(submittionAction, values);
         formattedError.value = { title: null, message: null };
+        router.push({ name: "categories" });
       } catch (err) {
         formattedError.value = errHandler(err);
         console.log(formattedError);
       } finally {
       }
     });
-    const formattedError = ref({title: null, message: null});
+    const formattedError = ref({ title: null, message: null });
 
     // No need to define rules for fields
     const { value: type } = useField("type");
+    const cancel = ()=> {
+      router.push({ name: "categories" });
+      resetForm()      
+    }
 
     return {
       store,
@@ -155,15 +168,17 @@ export default {
       onSubmit,
       type,
       formattedError,
+      cancel,
+
     };
   },
   async created() {
     if (this.formMode == FormMode.EDIT)
       try {
         await this.store.dispatch(GET_CATEGORY_ACT, this.id);
-      this.formattedError = { title: null, message: null };
-    } catch (err) {
-      this.formattedError = errHandler(err);
+        this.formattedError = { title: null, message: null };
+      } catch (err) {
+        this.formattedError = errHandler(err);
         console.log(this.formattedError);
       } finally {
       }

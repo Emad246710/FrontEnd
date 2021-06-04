@@ -1,33 +1,42 @@
 <template>
   <div v-if="formattedError.title && formattedError.message">
-        <err-presenter
-          :title="formattedError.title"
-          :message="formattedError.message"
-        />
-      </div>
+    <err-presenter
+      :title="formattedError.title"
+      :message="formattedError.message"
+    />
+  </div>
 
   <form @submit="onSubmit">
     <div class="formContainer">
       <!-- ---------------------------content--------------------------------- -->
       <div class="form-floating">
-        <input
+        <textarea
           class="form-control"
           id="contentInput"
           name="content"
+          placeholder="Start typing.."
+          style="height: 200px"
           v-model="content"
           :class="{
             'is-invalid': errors.content && errors.content.length > 0,
           }"
-        />
-        <label for="contentInput">content</label>
+        ></textarea>
+        <label for="contentInput">Content</label>
         <!-- Notice the use of bootstrap class invalid-feedback-->
         <div class="invalid-feedback">{{ errors.content }}</div>
       </div>
+
       <!-- -------------------------------------------------------------------- -->
 
       <!-- ---------------------------priority--------------------------------- -->
+
       <div class="form-floating">
-        <select v-model="priority" id="priorityInput" name="priority">
+        <select
+          class="form-select"
+          id="priorityInput"
+          aria-label="Floating label select example"
+          v-model="priority"
+        >
           <option value="" selected>None</option>
           <option
             v-for="option in priorityOptions"
@@ -37,15 +46,19 @@
             {{ option.viewValue }}
           </option>
         </select>
-        <label for="priorityInput">priority</label>
-        <!-- Notice the use of bootstrap class invalid-feedback-->
+        <label for="priorityInput">Works with selects</label>
       </div>
 
       <!-- -------------------------------------------------------------------- -->
 
       <!-- ---------------------------categoryId--------------------------------- -->
       <div class="form-floating">
-        <select v-model="categoryId" id="categoryIdInput" name="categoryId">
+        <select
+          class="form-select"
+          v-model="categoryId"
+          id="categoryIdInput"
+          name="categoryId"
+        >
           <option value="">None</option>
 
           <option
@@ -61,19 +74,25 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button type="submit" :disabled="!meta.dirty || isSubmitting">
+      <button
+        class="btn btn-secondary"
+        type="submit"
+        :disabled="!meta.dirty || isSubmitting"
+      >
         Submit
       </button>
     </div>
   </form>
 
-  {{ categoriesOptions }}
+  <button class="btn btn-dark" @click="cancel">Cancel</button>
 </template>
 
 <script>
 import { useForm, useField } from "vee-validate";
 import { useStore } from "vuex";
 import { computed } from "vue";
+import { useRouter } from "vue-router";
+
 import {
   EDIT_NOTE_ACT,
   CREATE_NOTE_ACT,
@@ -105,6 +124,7 @@ export default {
     let formMode = props.id ? FormMode.EDIT : FormMode.CREATE;
 
     const store = useStore();
+    const router = useRouter();
 
     //--------------------------------------------------------------------------------------
     const priorityOptions = [
@@ -192,12 +212,13 @@ export default {
       handleSubmit,
       isSubmitting, // to be used inside validatingfuncs inside "validationSchema", inorder to validate ONLY after submittion
       setFieldError,
+      resetForm,
       setErrors, // can be used to set err manually, for ex. unique email validation inside  "handleSubmit"
     } = useForm({
       validationSchema: myValidationSchema,
       initialValues: myInitialValues,
     });
-    const formattedError = ref({title: null, message: null});
+    const formattedError = ref({ title: null, message: null });
 
     const onSubmit = handleSubmit(async (values) => {
       values.userId = store.state.current_user.id;
@@ -217,12 +238,18 @@ export default {
       try {
         await store.dispatch(submittionAction, values);
         formattedError.value = { title: null, message: null };
+        router.push({ name: "notes" });
       } catch (err) {
         formattedError.value = errHandler(err);
         console.log(formattedError);
       } finally {
       }
     });
+
+    const cancel = () => {
+      router.push({ name: "categories" });
+      resetForm();
+    };
 
     // No need to define rules for fields
     const { value: content } = useField("content");
@@ -236,7 +263,7 @@ export default {
       formMode,
       categoryId,
       priority,
-
+      cancel,
       meta,
       errors,
       handleSubmit,
@@ -262,9 +289,9 @@ export default {
     if (this.formMode == FormMode.EDIT)
       try {
         await this.store.dispatch(GET_NOTE_ACT, this.id);
-      this.formattedError = { title: null, message: null };
-    } catch (err) {
-      this.formattedError = errHandler(err);
+        this.formattedError = { title: null, message: null };
+      } catch (err) {
+        this.formattedError = errHandler(err);
         console.log(this.formattedError);
       } finally {
       }

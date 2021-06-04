@@ -6,18 +6,30 @@
     />
   </div>
 
-
   <div v-else-if="filteredCategories">
-    <div>
-      <label for="input-filter">Filter by username:</label>
-      <input type="text" id="input-filter" v-model="query" />
+    <div class="d-flex flex-row justify-content-center align-items-center">
+      <div class="form-floating">
+        <input
+          class="form-control"
+          id="input-filter"
+          name="type"
+          v-model="query"
+        />
+        <label for="input-filter">Filter by content</label>
+      </div>
+
+      <button class="btn btn-dark" @click="reset">Reset</button>
     </div>
-    <button @click="reset">Reset</button>
 
+    <div class="info">
+      <p>Showing {{ filteredCategories.length }} results for "{{ query }}"</p>
+    </div>
+    {{filteredCategories}}
+    <div v-if="filteredCategories.length > 0">
 
-    <p>Showing {{ filteredCategories.length }} results for "{{ query }}"</p>
-    <div v-for="item in filteredCategories" :key="item.id">
-      <category-card v-bind="item" />
+      <div v-for="item in filteredCategories" :key="item.id">
+        <category-card v-bind="item" />
+      </div>
     </div>
   </div>
 </template>
@@ -28,7 +40,7 @@ import { useStore } from "vuex";
 import { GET_ALL_CATEGORIES_ACT } from "../storeDef";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
-import { ref , unref} from "vue";
+import { ref, unref } from "vue";
 import CategoryCard from "./CategoryCard.vue";
 
 export default {
@@ -51,7 +63,7 @@ export default {
       let tempCategories = unwrapped;
       // Process search input
       if (query.value != "" && query.value) {
-        tempCategories = tempCategories.filter((category) =>
+        tempCategories = tempCategories.filter((category) => 
           category.type.toLowerCase().includes(query.value.toLowerCase())
         );
       }
@@ -62,14 +74,10 @@ export default {
 
     return {
       store,
-      // categories,
+      categories,
       filteredCategories,
       query,
       reset,
-
-
-
-
 
       formattedError,
     };
@@ -88,6 +96,11 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
+.info {
+  text-align: right;
+  font-size: 0.7em;
+  margin: 0;
+}
 </style>
 

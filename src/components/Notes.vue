@@ -6,18 +6,46 @@
     />
   </div>
   <div v-else-if="filteredNotes">
-  <div>
-    <label for="input-filter">Filter by username:</label>
-    <input type="text" id="input-filter" v-model="query" />
-  </div>
-  <button @click="reset">Reset</button>
+    <div class="d-flex flex-row justify-content-center align-items-center">
+      <div class="form-floating">
+        <input
+          class="form-control"
+          id="input-filter"
+          name="type"
+          v-model="query"
+        />
+        <label for="input-filter">Filter by content</label>
+      </div>
 
-  <p>Notes</p>
+      <button class="btn btn-dark" @click="reset">Reset</button>
+    </div>
 
-  <p>Showing {{ filteredNotes.length }} results for "{{ query }}"</p>
-  <div v-for="item in filteredNotes" :key="item.id">
-    <note-card v-bind="item" />
-  </div>
+    <div class="form-floating">
+      <select
+        class="form-select"
+        v-model="sortByProperty"
+        @change="sortFunction"
+      >
+        <option
+          v-for="option in sortOptions"
+          :value="option.value"
+          :key="option.value"
+        >
+          {{ option.viewValue }}
+        </option>
+      </select>
+
+      <label for="priorityInput">Order by</label>
+    </div>
+
+    <div class="info">
+      <p>Showing {{ filteredNotes.length }} results for "{{ query }}"</p>
+    </div>
+    <div v-if="filteredNotes.length > 0">
+      <div v-for="item in filteredNotes" :key="item.id">
+        <note-card v-bind="item" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -32,7 +60,6 @@ import ErrPresenter from "./ErrPresenter.vue";
 import NoteCard from "./NoteCard.vue";
 import { ref, unref } from "vue";
 
-
 export default {
   components: {
     ErrPresenter,
@@ -43,8 +70,8 @@ export default {
     const formattedError = ref({ title: null, message: null });
 
     const notes = computed(() => store.state.notes);
-    console.log(notes);
 
+    //**filtering */
     const query = ref("");
 
     const reset = (evt) => {
@@ -54,24 +81,66 @@ export default {
     const filteredNotes = computed(() => {
       const unwrapped = JSON.parse(JSON.stringify(notes.value));
       let tempNotes = unwrapped;
-      console.log(tempNotes)
       if (query.value != "" && query.value) {
-        tempNotes = tempNotes.filter((note) =>
-          note.content.toLowerCase().includes(query.value.toLowerCase())
+        tempNotes = tempNotes.filter(
+          (note) =>
+            note.content.toLowerCase().includes(query.value.toLowerCase())
         );
       }
-      console.log(tempNotes)
-
       return tempNotes;
     });
+    /***************************************** */
 
+    /****************sorting**************** */
+    const sortOptions = [
+      { value: "id", viewValue: "None" },
+      { value: "content", viewValue: "Content" },
+      { value: "priority", viewValue: "Priority" },
+      { value: "categoryId", viewValue: "Category" },
+      { value: "createdOn", viewValue: "Created on" },
+    ];
+    const sortByProperty = ref(sortOptions[0].value);
+
+    const sortFunction = () => {
+      const compareFn = (a, b) => {
+        let property = sortByProperty.value;
+
+        var v1 =
+          typeof a[property] == "string"
+            ? a[property].toLowerCase()
+            : a[property];
+        var v2 =
+          typeof b[property] == "string"
+            ? b[property].toLowerCase()
+            : b[property];
+        if (!v2 || v1 < v2) {
+          // !v2 condition will sort the list in such way where null values are at the back
+          return -1;
+        }
+        if (v1 > v2) {
+          return 1;
+        }
+        return 0;
+      };
+      notes.value.sort(compareFn);
+    };
+
+    /***************************************** */
 
     return {
       store,
       //notes,
+
+      // filtering task:
       filteredNotes,
       query,
       reset,
+
+      // sorting task:
+      sortOptions,
+      sortByProperty,
+      sortFunction,
+
       formattedError,
     };
   },
@@ -89,5 +158,10 @@ export default {
 </script>
 
 <style>
+.info {
+  text-align: right;
+  font-size: 0.7em;
+  margin: 0;
+}
 </style>
 

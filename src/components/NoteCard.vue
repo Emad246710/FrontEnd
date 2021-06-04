@@ -13,9 +13,13 @@
         <p class="card-text">Content: {{ content }}</p>
         <p class="card-text">CreatedOn: {{ createdOn }}</p>
         <p class="card-text">Priority: {{ priority }}</p>
-        <p class="card-text">CategoryId: {{ categoryId }}</p>
+        <p class="card-text">Category: {{ category }}</p>
 
-        <button type="button" class="btn btn-primary" @click.prevent="editNote">
+        <button
+          class="btn btn-secondary"
+          type="button"
+          @click.prevent="editNote"
+        >
           Edit
         </button>
         <button
@@ -33,13 +37,13 @@
 <script>
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
-import { ref } from "vue";
+import { ref , watch} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import {DELETE_NOTE_ACT} from "../storeDef.js"
+import { DELETE_NOTE_ACT } from "../storeDef.js";
 
 export default {
-  components:{
+  components: {
     ErrPresenter,
   },
   props: {
@@ -49,6 +53,10 @@ export default {
     },
     categoryId: {
       type: Number,
+      required: false,
+    },
+    category: {
+      type: Object,
       required: false,
     },
     priority: {
@@ -72,7 +80,7 @@ export default {
     const router = useRouter();
     const store = useStore();
 
-    const formattedError = ref({title: null, message: null});
+    const formattedError = ref({ title: null, message: null });
 
     const deleteNote = async () => {
       try {
@@ -89,13 +97,30 @@ export default {
       router.push({ name: "note_edit", params: { id: props.id } });
     };
 
+    const id = ref(props.id);
+    const content = ref(props.content);
+    const userId = ref(props.userId);
+    const createdOn = ref(props.createdOn);
+    const priority = ref(props.priority);
+    let temp = props.category ? props.category.type : null;
+    const category = ref(temp);
+
+    watch(props, (currentValue, oldValue) => {
+      id.value = currentValue.id;
+      content.value = currentValue.content;
+      userId.value = currentValue.userId;
+      createdOn.value = currentValue.createdOn;
+      priority.value = currentValue.priority;
+      category.value = currentValue.category ? currentValue.category.type : null;
+    });
+
     return {
-      id: props.id,
-      content: props.content,
-      userId: props.userId,
-      createdOn: props.createdOn,
-      priority: props.priority,
-      categoryId: props.categoryId,
+      id,
+      content,
+      userId,
+      createdOn,
+      priority,
+      category,
       deleteNote,
       editNote,
       formattedError,

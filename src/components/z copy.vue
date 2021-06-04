@@ -1,121 +1,192 @@
 <template>
-  <div>
-    <label for="input-filter">Filter by content:</label>
-    <input type="text" id="input-filter" v-model="filterTerm" />
+  <div v-if="formattedError.title && formattedError.message">
+    <err-presenter
+      :title="formattedError.title"
+      :message="formattedError.message"
+    />
   </div>
 
+  <form @submit="onSubmit">
+    <div class="formContainer">
+      <!-- ---------------------------type--------------------------------- -->
+      <div class="form-floating">
+        <input
+          class="form-control"
+          id="typeInput"
+          name="type"
+          v-model="type"
+          :class="{
+            'is-invalid': errors.type && errors.type.length > 0,
+          }"
+        />
+        <label for="typeInput">type</label>
+        <!-- Notice the use of bootstrap class invalid-feedback-->
+        <div class="invalid-feedback">{{ errors.type }}</div>
+      </div>
+      <!-- -------------------------------------------------------------------- -->
 
-  <select v-model="sortByProperty" @change="sortFunction">
-    <option
-      v-for="option in sortOptions"
-      :value="option.value"
-      :key="option.value"
-    >
-      {{ option.viewValue }}
-    </option>
-  </select>
-
-  <u>
-    <li v-for="item in filtered_notes" :key="item.id">
-      <p>id {{ item.id }}</p>
-      <p>userId {{ item.userId }}</p>
-      <p>priority{{ item.priority }}</p>
-      <p>categoryId {{ item.categoryId }}</p>
-      <p>content {{ item.content }}</p>
-      <p>createdOn {{ item.createdOn }}</p>
-    </li>
-  </u>
+      <button
+        class="btn btn-secondary"
+        type="submit"
+        :disabled="!meta.dirty || isSubmitting"
+      >
+        Submit
+      </button>
+      <button class="btn btn-dark" @click="cancel">Cancel</button>
+    </div>
+  </form>
 </template>
 
+<script>
+import { useForm, useField } from "vee-validate";
+import { useStore } from "vuex";
+import { computed } from "vue";
+import { errHandler } from "../util.js";
+import ErrPresenter from "./ErrPresenter.vue";
+import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
+import {
+  EDIT_CATEGORY_ACT,
+  CREATE_CATEGORY_ACT,
+  GET_CATEGORY_ACT,
+  GET_CATEGORY_GET,
+  DELETE_CATEGORY_ACT,
+} from "../storeDef.js";
 
-<script >
-import data from "../mock-data";
-import { reactive, ref, computed } from "vue";
-
-export default {
-  setup() {
-    const filterTerm = ref("");
-
-    const notes = reactive([]);
-    const fetchDataFromApi = () => {
-      // should empty the list first!!!!
-      notes.push(...data.Notes);
-    };
-
-    const filtered_notes = computed(() => {
-      let temp = notes;
-      // Process search input
-      if (filterTerm.value != "" && filterTerm.value) {
-        temp = temp.filter((note) =>
-          note.content.toLowerCase().includes(filterTerm.value.toLowerCase())
-        );
-        console.log(temp);
-      }
-
-      return temp;
-    });
-
-    const sortOptions = [
-      { value: "id", viewValue: "None nnkj" },
-      { value: "userId", viewValue: "User" },
-      { value: "priority", viewValue: "Priority" },
-      { value: "categoryId", viewValue: "Category" },
-      { value: "content", viewValue: "Content" },
-      { value: "createdOn", viewValue: "Creation date" },
-    ];
-    const sortByProperty = ref(sortOptions[0].value);
-
-    const sortFunction = () => {
-      const compareFn = (a, b) => {
-        let property = sortByProperty.value;
-
-        var v1 =
-          typeof a[property] == "string"
-            ? a[property].toLowerCase()
-            : a[property];
-        var v2 =
-          typeof b[property] == "string"
-            ? b[property].toLowerCase()
-            : b[property];
-        if (!v2 || v1 < v2) {
-          // !v2 condition will sort the list in such way where null values are at the back
-          return -1;
-        }
-        if (v1 > v2) {
-          return 1;
-        }
-        return 0;
-      };
-      // const numSortFunction = (a, b) => a[sortByProperty] - b[sortByProperty];
-      notes.sort(compareFn);
-    };
-
-    return {
-      fetchDataFromApi,
-      notes,
-      filterTerm,
-      filtered_notes,
-      sortOptions,
-      sortByProperty,
-      sortFunction,
-    };
-  },
-  created() {
-    this.fetchDataFromApi();
-  },
+const FormMode = {
+  EDIT: "Edit",
+  CREATE: "Create",
 };
 
-// {
-// USER_ID: { value: "userId", viewValue: "User" },
-// PRIORITY: { value: "priority", viewValue: "Priority" },
-// CATEGORY_ID: { value: "categoryId", viewValue: "Category" },
-// CONTENT: { value: "content", viewValue: "Content" },
-// CREATED_ON: { value: "createdOn", viewValue: "Creation date" },
-// ID: { value: "id", viewValue: "None" },
-// };
+export default {
+  components: {
+    ErrPresenter,
+  },
+  props: {
+    id: {
+      type: Number,
+      required: false,
+    },
+  },
+
+  setup(props) {
+    let formMode = props.id ? FormMode.EDIT : FormMode.CREATE;
+    const store = useStore();
+    const router = useRouter();
+
+    // Define a validation schema
+    const myValidationSchema = {
+      type(v) {
+        // NOTE: isSubmitting.value
+        // To validate only after submittion, we can check the isSubmitting.value
+        /**
+         * Submission Behavior
+         *    Before validation stage
+         *      isSubmitting:true
+         *      touched: true
+         *    Validation stage
+         *      pending:true
+         *      Runs the validation function/schema/rule
+         *        If there are errors then it will skip the next stage and update the validation state (meta, errors) for the form and fields
+         *    After validation stage
+         *      Calls the handleSubmit
+         *      isSubmitting:false
+         */
+        if (!isSubmitting.value) return true;
+
+        if (!v) {
+          // if not valid: return false or null or a costume errMsg
+          // return false;
+          return "Type is a required field!";
+        }
+        return true;
+      },
+    };
+
+    let myInitialValues = {};
+
+    let submittionAction = "";
+
+    if (formMode == FormMode.EDIT) {
+      myInitialValues = computed(() => {
+        return store.getters[GET_CATEGORY_GET](props.id);
+      });
+      submittionAction = EDIT_CATEGORY_ACT;
+    } else {
+      submittionAction = CREATE_CATEGORY_ACT;
+    }
+
+    // Create a form context with the validation schema
+    const {
+      meta, // this will hold the form validity state
+      errors, // the errMsgs that are returned from the functions inside "validationSchema"
+      handleSubmit,
+      isSubmitting, // to be used inside validatingfuncs inside "validationSchema", inorder to validate ONLY after submittion
+      setFieldError,
+      resetForm,
+      setErrors, // can be used to set err manually, for ex. unique email validation inside  "handleSubmit"
+    } = useForm({
+      validationSchema: myValidationSchema,
+      initialValues: myInitialValues,
+    });
+
+    const onSubmit = handleSubmit(async (values) => {
+      values.userId = store.state.current_user.id;
+      if (formMode == FormMode.EDIT) values.id = props.id;
+
+      console.log(values);
+
+      try {
+        await store.dispatch(submittionAction, values);
+        formattedError.value = { title: null, message: null };
+        router.push({ name: "categories" });
+      } catch (err) {
+        formattedError.value = errHandler(err);
+        console.log(formattedError);
+      } finally {
+      }
+    });
+    const formattedError = ref({ title: null, message: null });
+
+    // No need to define rules for fields
+    const { value: type } = useField("type");
+    const cancel = ()=> {
+      router.push({ name: "categories" });
+      resetForm()      
+    }
+
+    return {
+      store,
+      formMode,
+      meta,
+      errors,
+      handleSubmit,
+      isSubmitting,
+      setFieldError,
+      setErrors,
+      onSubmit,
+      type,
+      formattedError,
+      cancel,
+
+    };
+  },
+  async created() {
+    if (this.formMode == FormMode.EDIT)
+      try {
+        await this.store.dispatch(GET_CATEGORY_ACT, this.id);
+        this.formattedError = { title: null, message: null };
+      } catch (err) {
+        this.formattedError = errHandler(err);
+        console.log(this.formattedError);
+      } finally {
+      }
+  },
+};
 </script>
 
-<style scoped>
-
+<style>
 </style>
+
+  

@@ -54,7 +54,11 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button type="submit" :disabled="!meta.dirty || isSubmitting">
+      <button
+        class="btn btn-secondary"
+        type="submit"
+        :disabled="!meta.dirty || isSubmitting"
+      >
         Submit
       </button>
       <div v-if="formattedError.title && formattedError.message">
@@ -88,14 +92,21 @@ defineRule("confirmed", (value, [target], ctx) => {
   return "Passwords must match";
 });
 
+const FormMode = {
+  EDIT: "Edit",
+  CREATE: "Create",
+};
+
 export default {
   components: {
     ErrPresenter,
   },
 
-  setup(props) {
-    let formMode = props.id ? "Edit" : "Create";
+  setup() {
     const store = useStore();
+
+    let formMode =
+      store.state.current_user.id != null ? FormMode.EDIT : FormMode.CREATE;
 
     // Define a validation schema
     const myValidationSchema = {
@@ -137,8 +148,11 @@ export default {
 
     let submittionAction = "";
 
-    if (formMode == "Edit") {
-      myInitialValues = computed(() => store.state.current_user);
+    if (formMode == FormMode.EDIT) {
+      const unwrapped = JSON.parse(JSON.stringify(store.state.current_user));
+
+      myInitialValues = unwrapped;
+      console.log(myInitialValues);
       submittionAction = EDIT_USER_ACT;
     } else {
       submittionAction = SIGNUP_ACT;
@@ -151,6 +165,7 @@ export default {
       handleSubmit,
       isSubmitting, // to be used inside validatingfuncs inside "validationSchema", inorder to validate ONLY after submittion
       setFieldError,
+      resetForm,
       setErrors, // can be used to set err manually, for ex. unique email validation inside  "handleSubmit"
     } = useForm({
       validationSchema: myValidationSchema,
