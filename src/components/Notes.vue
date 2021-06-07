@@ -6,8 +6,9 @@
     />
   </div>
   <div v-else-if="filteredNotes">
-    <div class="d-flex flex-row justify-content-center align-items-center">
-      <div class="form-floating">
+    <div class="d-md-flex flex-md-row justify-content-md-around ">
+
+      <div class="form-floating col-md-5">
         <input
           class="form-control"
           id="input-filter"
@@ -17,10 +18,7 @@
         <label for="input-filter">Filter by content</label>
       </div>
 
-      <button class="btn btn-dark" @click="reset">Reset</button>
-    </div>
-
-    <div class="form-floating">
+    <div class="form-floating col-md-3">
       <select
         class="form-select"
         v-model="sortByProperty"
@@ -38,11 +36,19 @@
       <label for="priorityInput">Order by</label>
     </div>
 
+
+
+
+    </div>
+
+
     <div class="info">
       <p>Showing {{ filteredNotes.length }} results for "{{ query }}"</p>
     </div>
+
+
     <div v-if="filteredNotes.length > 0">
-      <div v-for="item in filteredNotes" :key="item.id">
+      <div v-for="item in filteredNotes" :key="item.id" class="mt-5">
         <note-card v-bind="item" />
       </div>
     </div>
@@ -69,18 +75,23 @@ export default {
     const store = useStore();
     const formattedError = ref({ title: null, message: null });
 
-    const notes = computed(() => store.state.notes);
+    const notes = computed(() => {
+      let tempList = Object.values(store.state.notes)
+      // console.log(tempList)
+      return tempList
+      
+    });
 
     //**filtering */
     const query = ref("");
 
-    const reset = (evt) => {
-      query.value = ""; // clears the query
-    };
+    // const reset = (evt) => {
+    //   query.value = ""; // clears the query
+    // };
 
     const filteredNotes = computed(() => {
-      const unwrapped = JSON.parse(JSON.stringify(notes.value));
-      let tempNotes = unwrapped;
+      // const unwrapped = JSON.parse(JSON.stringify(notes.value));
+      let tempNotes = notes.value;
       if (query.value != "" && query.value) {
         tempNotes = tempNotes.filter(
           (note) =>
@@ -129,12 +140,11 @@ export default {
 
     return {
       store,
-      //notes,
 
       // filtering task:
       filteredNotes,
       query,
-      reset,
+      // reset,
 
       // sorting task:
       sortOptions,

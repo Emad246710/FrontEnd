@@ -54,13 +54,18 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button
-        class="btn btn-secondary"
-        type="submit"
-        :disabled="!meta.dirty || isSubmitting"
-      >
-        Submit
-      </button>
+      <div class="d-md-flex flex-md-row justify-content-md-end">
+        <button
+          class="btn btn-secondary"
+          type="submit"
+          :disabled="!meta.dirty || isSubmitting"
+        >
+          {{formMode == 'Edit' ? 'Submit' : 'Signup'}}
+        </button>
+
+        <button class="btn btn-secondary" @click="cancel">Cancel</button>
+      </div>
+
       <div v-if="formattedError.title && formattedError.message">
         <err-presenter
           :title="formattedError.title"
@@ -79,6 +84,7 @@ import { EDIT_USER_ACT, SIGNUP_ACT } from "../storeDef.js";
 import { useForm, useField, defineRule } from "vee-validate";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
+import { useRouter } from "vue-router";
 
 import { ref } from "vue";
 
@@ -104,6 +110,7 @@ export default {
 
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     let formMode =
       store.state.current_user.id != null ? FormMode.EDIT : FormMode.CREATE;
@@ -111,13 +118,6 @@ export default {
     // Define a validation schema
     const myValidationSchema = {
       username: (v) => {
-        // let temp = () => {
-        //   console.log("44444444");
-        // };
-
-        // // if this func is async test unique username
-        // if (!isSubmitting.value) debounce(temp, 2000);
-
         if (!v) {
           // if not valid: return false or null or a costume errMsg
           // return false;
@@ -129,6 +129,14 @@ export default {
         // validate ONLY after submittion
         if (!isSubmitting.value) return true;
 
+        if (
+          (v == "" || typeof v == "undefined" || v == null) &&
+          formMode == FormMode.EDIT
+        )
+          return true;
+
+        console.log(formMode);
+
         if (!v) return "Password is a required field!";
 
         let pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -138,7 +146,6 @@ export default {
           return true;
         } else {
           return "Invalid format. (The password must have minimum eight characters, at least one letter and one number)!";
-          // return false;
         }
       },
       confirmation: "confirmed:password",
@@ -181,6 +188,8 @@ export default {
         //     setFieldError("email", "The email is already registered!");
 
         formattedError.value = { title: null, message: null };
+        router.push({ name: 'notes' });
+
       } catch (err) {
         formattedError.value = errHandler(err);
       } finally {
@@ -192,6 +201,10 @@ export default {
     const { value: password } = useField("password");
     const { value: confirmation } = useField("confirmation");
     const { value: id } = useField("id");
+    const cancel = () => {
+      router.push({ name: "login" });
+      resetForm();
+    };
 
     return {
       store,
@@ -207,6 +220,7 @@ export default {
       password,
       confirmation,
       formattedError,
+      cancel,
     };
   },
 };

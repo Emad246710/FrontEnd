@@ -28,68 +28,70 @@
 
       <!-- -------------------------------------------------------------------- -->
 
-      <!-- ---------------------------priority--------------------------------- -->
-
-      <div class="form-floating">
-        <select
-          class="form-select"
-          id="priorityInput"
-          aria-label="Floating label select example"
-          v-model="priority"
-        >
-          <option value="" selected>None</option>
-          <option
-            v-for="option in priorityOptions"
-            :value="option.value"
-            :key="option.value"
+      <div class="d-md-flex flex-md-row justify-content-md-center">
+        <!-- ---------------------------categoryId--------------------------------- -->
+        <div class="form-floating flex-grow-1 mx-md-2">
+          <select
+            class="form-select"
+            v-model="categoryId"
+            id="categoryIdInput"
+            name="categoryId"
           >
-            {{ option.viewValue }}
-          </option>
-        </select>
-        <label for="priorityInput">Works with selects</label>
+            <option value="">None</option>
+
+            <option
+              v-for="option in categoriesOptions"
+              :value="option.value"
+              :key="option.value"
+            >
+              {{ option.viewValue }}
+            </option>
+          </select>
+          <label for="categoryIdInput">Category</label>
+          <!-- Notice the use of bootstrap class invalid-feedback-->
+        </div>
+        <!-- -------------------------------------------------------------------- -->
+        <!-- ---------------------------priority--------------------------------- -->
+
+        <div class="form-floating flex-grow-1 mx-md-2">
+          <select
+            class="form-select"
+            id="priorityInput"
+            aria-label="Floating label select example"
+            v-model="priority"
+          >
+            <option value="" selected>None</option>
+            <option
+              v-for="option in priorityOptions"
+              :value="option.value"
+              :key="option.value"
+            >
+              {{ option.viewValue }}
+            </option>
+          </select>
+          <label for="priorityInput">Priority</label>
+        </div>
+
+        <!-- -------------------------------------------------------------------- -->
       </div>
 
-      <!-- -------------------------------------------------------------------- -->
-
-      <!-- ---------------------------categoryId--------------------------------- -->
-      <div class="form-floating">
-        <select
-          class="form-select"
-          v-model="categoryId"
-          id="categoryIdInput"
-          name="categoryId"
+      <div class="d-md-flex flex-md-row justify-content-md-end">
+        <button
+          class="btn btn-secondary"
+          type="submit"
+          :disabled="!meta.dirty || isSubmitting"
         >
-          <option value="">None</option>
-
-          <option
-            v-for="option in categoriesOptions"
-            :value="option.value"
-            :key="option.value"
-          >
-            {{ option.viewValue }}
-          </option>
-        </select>
-        <label for="categoryIdInput">Category</label>
-        <!-- Notice the use of bootstrap class invalid-feedback-->
+          Submit
+        </button>
+        <button class="btn btn-dark" @click="cancel">Cancel</button>
       </div>
-      <!-- -------------------------------------------------------------------- -->
-
-      <button
-        class="btn btn-secondary"
-        type="submit"
-        :disabled="!meta.dirty || isSubmitting"
-      >
-        Submit
-      </button>
     </div>
   </form>
-
-  <button class="btn btn-dark" @click="cancel">Cancel</button>
 </template>
 
 <script>
 import { useForm, useField } from "vee-validate";
-import { useStore } from "vuex";
+import { useStore  } from "vuex";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
@@ -125,6 +127,10 @@ export default {
 
     const store = useStore();
     const router = useRouter();
+
+    // computed: { ...mapState(['posts']) }
+    
+
 
     //--------------------------------------------------------------------------------------
     const priorityOptions = [
@@ -187,6 +193,7 @@ export default {
       // Edit mode
       myInitialValues = computed(() => {
         let temp = store.getters[GET_NOTE_GET](props.id);
+        // if (temp) console.log(JSON.parse(JSON.stringify(temp)));
         if (temp) {
           temp.categoryId = temp.categoryId ? temp.categoryId : "";
           temp.priority = temp.priority ? temp.priority : "";
@@ -203,7 +210,7 @@ export default {
       };
     }
 
-    console.log(myInitialValues);
+
 
     // Create a form context with the validation schema
     const {
@@ -247,7 +254,7 @@ export default {
     });
 
     const cancel = () => {
-      router.push({ name: "categories" });
+      router.push({ name: "notes" });
       resetForm();
     };
 
@@ -273,6 +280,7 @@ export default {
       onSubmit,
       content,
       formattedError,
+      myInitialValues,
     };
   },
   async created() {

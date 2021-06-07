@@ -6,8 +6,7 @@ export const errHandler = (err) => {
         title: "Server Response",
         message: err.response.data.errMsg ? err.response.data.errMsg : err.message,
       }
-      // console.log(err.response.data);
-      // console.log(formatted);
+      
       return formatted ;
     } else if (err.request) {
       // client never received a response, or request never left

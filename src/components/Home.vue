@@ -11,7 +11,9 @@
       aria-controls="sidebarMenu"
       aria-expanded="false"
       aria-label="Toggle navigation"
-    ></button>
+    >
+        <span class="navbar-toggler-icon"></span>
+</button>
     <div class="w-100"></div>
     <!--  -->
 
@@ -22,17 +24,18 @@
     </div>
   </header>
 
-  <div class="container-fluid bg-primary">
+  <div class="container-fluid bg-primary" style="min-height: 93vh">
     <div class="row">
       <nav-bar v-if="is_loggedIn" />
 
-      <main  :class="{'col-md-9': is_loggedIn, 'col-lg-10': is_loggedIn,}" class=" ms-sm-auto  px-md-4" >
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
-        >
-          <h1 class="h2"></h1>
-        </div>
-        <div class="container-md bg-secondary">
+      <main
+        :class="{ 'col-md-9': is_loggedIn, 'col-lg-10': is_loggedIn }"
+        class="ms-sm-auto px-md-4"
+      >
+
+
+        <div class="container-md bg-light  pt-3 pb-2 mb-3 mt-5 border-bottom" style="min-height: 85vh">
+          
           <router-view />
         </div>
       </main>
@@ -46,7 +49,7 @@ import { useStore } from "vuex";
 
 import NavBar from "./NavBar.vue";
 import { IS_LOGGED_IN, LOGOUT_ACT } from "../storeDef.js";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import { Collapse } from "bootstrap";
 
@@ -66,16 +69,6 @@ export default {
     const logout = () => {
       store.dispatch(LOGOUT_ACT);
       router.push({ name: "login" });
-
-
-    //       try {
-    //   await this.store.dispatch(GET_ALL_CATEGORIES_ACT);
-    //   this.formattedError = { title: null, message: null };
-    // } catch (err) {
-    //   this.formattedError = errHandler(err);
-    //   console.log(this.formattedError);
-    // } finally {
-    // }
 
     };
 
@@ -105,11 +98,8 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  /* rtl:raw:
-  right: 0;
-  */
+  
   bottom: 0;
-  /* rtl:remove */
   left: 0;
   z-index: 100; /* Behind the navbar */
   padding: 48px 0 0; /* Height of navbar */

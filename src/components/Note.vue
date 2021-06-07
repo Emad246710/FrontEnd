@@ -1,18 +1,22 @@
 <template>
   <div v-if="formattedError.title && formattedError.message">
-        <err-presenter
-          :title="formattedError.title"
-          :message="formattedError.message"
-        />
-      </div>
+    <err-presenter
+      :title="formattedError.title"
+      :message="formattedError.message"
+    />
+  </div>
   <div v-else-if="note">
-    <p>ID: {{ note.id }}</p>
     <p>Content: {{ note.content }}</p>
-    <p>CreatedOn: {{ note.createdOn }}</p>
-    <p>Priority: {{ note.priority }}</p>
-    <p>UserId: {{ note.userId }}</p>
-    <p>Category: {{ note.category.type }}</p>
-    <button class="btn btn-secondary" type="submit" @click.prevent="deleteNote">Delete</button>
+
+    <div class="d-md-flex flex-md-row justify-content-md-end">
+      <p>Priority: {{ note.priority }}</p>
+      <p>Category: {{ note.category && note.category.type }}</p>
+      <p>CreatedOn: {{ note.createdOn }}</p>
+    </div>
+
+    <button class="btn btn-secondary" type="submit" @click.prevent="deleteNote">
+      Delete
+    </button>
   </div>
 </template>
 
@@ -39,7 +43,7 @@ export default {
 
   setup(props) {
     const store = useStore();
-     const formattedError = ref({title: null, message: null})
+    const formattedError = ref({ title: null, message: null });
 
     const note = computed(() => store.getters[GET_NOTE_GET](props.id));
     const deleteNote = async () => {

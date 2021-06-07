@@ -36,9 +36,27 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button class="btn btn-secondary" type="submit" :disabled="!meta.dirty || isSubmitting">
-        Submit
+
+           <div class="d-md-flex flex-md-row justify-content-md-center">
+
+
+ <button class="btn btn-secondary" type="submit" :disabled="!meta.dirty || isSubmitting">
+        Sign in
       </button>
+
+            <button class="btn btn-secondary" @click="signUp">
+              
+              Sign Up
+              
+              </button>
+
+   </div>
+
+     
+
+
+
+
       <div v-if="formattedError.title && formattedError.message">
         <err-presenter
           :title="formattedError.title"
@@ -87,21 +105,7 @@ export default {
     // Define a validation schema
     const myValidationSchema = {
       username(v) {
-        // NOTE: isSubmitting.value
-        // To validate only after submittion, we can check the isSubmitting.value
-        /**
-         * Submission Behavior
-         *    Before validation stage
-         *      isSubmitting:true
-         *      touched: true
-         *    Validation stage
-         *      pending:true
-         *      Runs the validation function/schema/rule
-         *        If there are errors then it will skip the next stage and update the validation state (meta, errors) for the form and fields
-         *    After validation stage
-         *      Calls the handleSubmit
-         *      isSubmitting:false
-         */
+       
         if (!isSubmitting.value) return true;
 
         if (!v) {
@@ -117,8 +121,7 @@ export default {
 
         if (!v) return "Password is a required field!";
 
-        // let pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        let pattern = /^.*$/;
+        let pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
         let valid = pattern.test(String(v));
 
         if (valid) {
@@ -137,6 +140,7 @@ export default {
       handleSubmit,
       isSubmitting, // to be used inside validatingfuncs inside "validationSchema", inorder to validate ONLY after submittion
       setFieldError,
+      resetForm,
       setErrors, // can be used to set err manually, for ex. unique email validation inside  "handleSubmit"
     } = useForm({
       validationSchema: myValidationSchema,
@@ -162,6 +166,12 @@ export default {
     const { value: username } = useField("username");
     const { value: password } = useField("password");
 
+    const signUp = ()=>{
+      router.push({ name: "signup" });
+      resetForm();
+    }
+
+
     return {
       store,
       meta,
@@ -174,6 +184,8 @@ export default {
       username,
       password,
       formattedError,
+      signUp,
+
     };
   },
 };

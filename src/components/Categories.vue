@@ -7,27 +7,26 @@
   </div>
 
   <div v-else-if="filteredCategories">
-    <div class="d-flex flex-row justify-content-center align-items-center">
-      <div class="form-floating">
+    <div class="d-flex flex-row justify-content-md-center">
+      <div class="form-floating col-md-5">
         <input
           class="form-control"
           id="input-filter"
           name="type"
           v-model="query"
         />
-        <label for="input-filter">Filter by content</label>
+        <label for="input-filter">Filter by type</label>
       </div>
 
-      <button class="btn btn-dark" @click="reset">Reset</button>
+
     </div>
 
     <div class="info">
       <p>Showing {{ filteredCategories.length }} results for "{{ query }}"</p>
     </div>
-    {{filteredCategories}}
-    <div v-if="filteredCategories.length > 0">
 
-      <div v-for="item in filteredCategories" :key="item.id">
+    <div v-if="filteredCategories.length > 0">
+      <div v-for="item in filteredCategories" :key="item.id" class="mt-5">
         <category-card v-bind="item" />
       </div>
     </div>
@@ -40,7 +39,7 @@ import { useStore } from "vuex";
 import { GET_ALL_CATEGORIES_ACT } from "../storeDef";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
-import { ref, unref } from "vue";
+import { ref } from "vue";
 import CategoryCard from "./CategoryCard.vue";
 
 export default {
@@ -50,20 +49,23 @@ export default {
   },
   setup() {
     const store = useStore();
-    const categories = computed(() => store.state.categories);
+    const categories = computed(() => {
+      let tempList = Object.values(store.state.categories);
+      return tempList;
+    });
 
     const query = ref("");
 
-    const reset = (evt) => {
-      query.value = ""; // clears the query
-    };
+    // const reset = (evt) => {
+    //   query.value = ""; // clears the query
+    // };
 
     const filteredCategories = computed(() => {
-      const unwrapped = JSON.parse(JSON.stringify(categories.value));
-      let tempCategories = unwrapped;
+      // const unwrapped = JSON.parse(JSON.stringify(categories.value));
+      let tempCategories = categories.value;
       // Process search input
       if (query.value != "" && query.value) {
-        tempCategories = tempCategories.filter((category) => 
+        tempCategories = tempCategories.filter((category) =>
           category.type.toLowerCase().includes(query.value.toLowerCase())
         );
       }
@@ -74,10 +76,10 @@ export default {
 
     return {
       store,
-      categories,
+
       filteredCategories,
       query,
-      reset,
+      // reset,
 
       formattedError,
     };

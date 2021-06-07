@@ -25,14 +25,16 @@
       </div>
       <!-- -------------------------------------------------------------------- -->
 
-      <button
-        class="btn btn-secondary"
-        type="submit"
-        :disabled="!meta.dirty || isSubmitting"
-      >
-        Submit
-      </button>
-      <button class="btn btn-dark" @click="cancel">Cancel</button>
+      <div class="d-md-flex flex-md-row justify-content-md-end">
+        <button
+          class="btn btn-secondary"
+          type="submit"
+          :disabled="!meta.dirty || isSubmitting"
+        >
+          Submit
+        </button>
+        <button class="btn btn-dark" @click="cancel">Cancel</button>
+      </div>
     </div>
   </form>
 </template>
@@ -78,26 +80,11 @@ export default {
     // Define a validation schema
     const myValidationSchema = {
       type(v) {
-        // NOTE: isSubmitting.value
-        // To validate only after submittion, we can check the isSubmitting.value
-        /**
-         * Submission Behavior
-         *    Before validation stage
-         *      isSubmitting:true
-         *      touched: true
-         *    Validation stage
-         *      pending:true
-         *      Runs the validation function/schema/rule
-         *        If there are errors then it will skip the next stage and update the validation state (meta, errors) for the form and fields
-         *    After validation stage
-         *      Calls the handleSubmit
-         *      isSubmitting:false
-         */
+       
         if (!isSubmitting.value) return true;
 
         if (!v) {
-          // if not valid: return false or null or a costume errMsg
-          // return false;
+         
           return "Type is a required field!";
         }
         return true;
@@ -151,10 +138,10 @@ export default {
 
     // No need to define rules for fields
     const { value: type } = useField("type");
-    const cancel = ()=> {
+    const cancel = () => {
       router.push({ name: "categories" });
-      resetForm()      
-    }
+      resetForm();
+    };
 
     return {
       store,
@@ -169,7 +156,6 @@ export default {
       type,
       formattedError,
       cancel,
-
     };
   },
   async created() {
