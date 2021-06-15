@@ -89,12 +89,14 @@
 </template>
 
 <script>
-import { Collapse } from "bootstrap";
+// import { Collapse } from "bootstrap";
 import { ref, onMounted } from "vue";
 
 export default {
   setup(props, context) {
+    // https://v3.vuejs.org/guide/composition-api-template-refs.html
     // https://markus.oberlehner.net/blog/refs-and-the-vue-3-composition-api/
+    // start value is null becuase "setup" function is excuted before the rendering of the dom
     const sidebarMenuRef = ref(null);
 
     const hideSidebarWhenScreenLTmd = () => {

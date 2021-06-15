@@ -3,8 +3,9 @@ import axios from "axios";
 
 import {
     URI_ROOT,
+    IS_VALID_AS_NEW_USERNAME,
 
-    LOGIN_MUT, LOGOUT_MUT, GET_USE_MUT, DELETE_USER_MUT,
+    SET_USER_DETAILS_MUT, LOGOUT_MUT, DELETE_USER_MUT,
 
     GET_ALL_NOTES_MUT, GET_NOTE_MUT, DELETE_NOTE_MUT,
     GET_ALL_CATEGORIES_MUT, GET_CATEGORY_MUT, DELETE_CATEGORY_MUT,
@@ -48,6 +49,25 @@ const getters = {
 }
 const actions = {
 
+    [IS_VALID_AS_NEW_USERNAME]: async ({ commit, state }, username) => {
+
+        let config = {
+            method: "get",
+            url: URI_ROOT + "/checkusername/" + username,
+            withCredentials: true,
+        };
+
+        console.log('*****************************************************')
+        console.log(username)
+        console.log('*****************************************************')
+        let usn = state.current_user.username;
+        if ( username.localeCompare(usn) != 0) {
+            let response = await axios(config);
+            console.log(response.data)
+        }
+    },
+
+
     [LOGIN_ACT]: async ({ commit }, { username, password }) => {
 
         let config = {
@@ -62,7 +82,7 @@ const actions = {
 
         let response = await axios(config);
         let user = response.data.current_user;
-        commit(LOGIN_MUT, user)
+        commit(SET_USER_DETAILS_MUT, user)
 
     },
     [LOGOUT_ACT]: async ({ commit }) => {
@@ -85,11 +105,8 @@ const actions = {
         };
         let response = await axios(config);
         let user = response.data.current_user;
-
-        commit(GET_USE_MUT, user)
+        commit(SET_USER_DETAILS_MUT, user)
     },
-
-
     [SIGNUP_ACT]: async ({ commit, dispatch }, { username, password }) => {
         let config = {
             method: "post",
@@ -102,12 +119,11 @@ const actions = {
         };
         let response = await axios(config);
         let user_id = response.data.id;
-        commit(GET_USE_MUT, { id: user_id, username: username })
-        dispatch(GET_USER_ACT, user_id)
-
+        commit(SET_USER_DETAILS_MUT, { id: user_id, username: username })
+        // dispatch(GET_USER_ACT, user_id)
     },
-    [EDIT_USER_ACT]: async ({ commit, dispatch }, { username, password, id }) => {
 
+    [EDIT_USER_ACT]: async ({ commit, dispatch }, { username, password, id }) => {
         let config = {
             method: "put",
             url: URI_ROOT + "/users/" + id,
@@ -119,8 +135,10 @@ const actions = {
         };
         let response = await axios(config);
         let user_id = response.data.id;
-        dispatch(GET_USER_ACT, user_id)
+        commit(SET_USER_DETAILS_MUT, { id: user_id, username: username })
+        // dispatch(GET_USER_ACT, user_id)
     },
+
     [DELETE_USER_ACT]: async ({ commit }) => {
         let config = {
             method: "delete",
@@ -172,10 +190,10 @@ const actions = {
         let response = await axios(config);
         // console.log(response.data)
         let note = response.data
-        commit(GET_NOTE_MUT, note )
+        commit(GET_NOTE_MUT, note)
     },
 
-    [EDIT_NOTE_ACT]: async ({  dispatch }, note) => {
+    [EDIT_NOTE_ACT]: async ({ dispatch }, note) => {
 
         let { id } = note
         let config = {
@@ -192,7 +210,7 @@ const actions = {
     },
 
 
-    [CREATE_NOTE_ACT]: async ({  dispatch }, note) => {
+    [CREATE_NOTE_ACT]: async ({ dispatch }, note) => {
         let config = {
             method: "post",
             url: URI_ROOT + "/users/" + state.current_user.id + "/notes",
@@ -219,7 +237,7 @@ const actions = {
         dispatch(GET_ALL_NOTES_ACT)
 
     },
-    
+
 
     [GET_ALL_CATEGORIES_ACT]: async ({ commit, state }) => {
         let config = {
@@ -245,7 +263,7 @@ const actions = {
         commit(GET_CATEGORY_MUT, category)
     },
 
-    [EDIT_CATEGORY_ACT]: async ({  state, dispatch }, category) => {
+    [EDIT_CATEGORY_ACT]: async ({ state, dispatch }, category) => {
 
         let { id } = category
         let config = {
@@ -260,7 +278,7 @@ const actions = {
 
     },
 
-    [CREATE_CATEGORY_ACT]: async ({  dispatch }, category) => {
+    [CREATE_CATEGORY_ACT]: async ({ dispatch }, category) => {
         let config = {
             method: "post",
             url: URI_ROOT + "/users/" + state.current_user.id + "/categories",
@@ -289,12 +307,10 @@ const actions = {
 
 
 const mutations = {
-    [LOGIN_MUT]: (state, user) => {
+    [SET_USER_DETAILS_MUT]: (state, user) => {
         state.current_user = user
-        if (user && user.id && user.username) {
+        if (user && user.id) {
             localStorage.current_user_id = user.id
-            localStorage.current_user_username = user.username
-
         }
 
     },
@@ -306,19 +322,7 @@ const mutations = {
         }
         state.notes = {}
         state.categories = {}
-
         delete localStorage.current_user_id
-        delete localStorage.current_user_username
-
-
-    },
-    [GET_USE_MUT]: (state, user) => {
-        state.current_user = user
-        if (user && user.id && user.username) {
-            localStorage.current_user_id = user.id
-            localStorage.current_user_username = user.username
-
-        }
 
     },
 

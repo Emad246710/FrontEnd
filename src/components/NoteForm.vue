@@ -6,7 +6,7 @@
     />
   </div>
 
-  <form @submit="onSubmit">
+  <form v-else @submit="onSubmit">
     <div class="formContainer">
       <!-- ---------------------------content--------------------------------- -->
       <div class="form-floating">
@@ -255,7 +255,6 @@ export default {
 
     const cancel = () => {
       router.push({ name: "notes" });
-      resetForm();
     };
 
     // No need to define rules for fields

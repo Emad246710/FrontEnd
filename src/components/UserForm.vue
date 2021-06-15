@@ -60,7 +60,7 @@
           type="submit"
           :disabled="!meta.dirty || isSubmitting"
         >
-          {{formMode == 'Edit' ? 'Submit' : 'Signup'}}
+          {{ formMode == "Edit" ? "Submit" : "Signup" }}
         </button>
 
         <button class="btn btn-secondary" @click="cancel">Cancel</button>
@@ -79,7 +79,11 @@
 <script>
 import { useStore } from "vuex";
 import { computed } from "vue";
-import { EDIT_USER_ACT, SIGNUP_ACT } from "../storeDef.js";
+import {
+  EDIT_USER_ACT,
+  IS_VALID_AS_NEW_USERNAME,
+  SIGNUP_ACT,
+} from "../storeDef.js";
 
 import { useForm, useField, defineRule } from "vee-validate";
 import { errHandler } from "../util.js";
@@ -114,7 +118,8 @@ export default {
 
     let formMode =
       store.state.current_user.id != null ? FormMode.EDIT : FormMode.CREATE;
-
+    //important to define the variable "timer" here
+    let timer;
     // Define a validation schema
     const myValidationSchema = {
       username: (v) => {
@@ -123,7 +128,33 @@ export default {
           // return false;
           return "Username is a requied field!";
         }
-        return true;
+        return new Promise((resolve) => {
+          clearTimeout(timer);
+          timer = setTimeout(resolve, 800);
+        }).then(async () => {
+          console.log("async username validiation is running!");
+          try {
+            await store.dispatch(IS_VALID_AS_NEW_USERNAME, v);
+            return true;
+          } catch (err) {
+            if (err.response && err.response.data && err.response.data.errMsg)
+              console.log(err.response.data.errMsg);
+            console.log(err);
+            return `Username ${v} is already registered`;
+          }
+        });
+
+        // return new Promise((resolve) => {
+        //   clearTimeout(timer);
+        //   timer = setTimeout(resolve, 1500);
+        // }).then(() => {
+        //   if (v.length < 8) {
+        //     console.log("qqqqqqqqqqqqqqqqqqqqqqq");
+        //     return "Username length!";
+        //   } else {
+        //     return true;
+        //   }
+        // });
       },
       password(v) {
         // validate ONLY after submittion
@@ -188,8 +219,8 @@ export default {
         //     setFieldError("email", "The email is already registered!");
 
         formattedError.value = { title: null, message: null };
-        router.push({ name: 'notes' });
-
+        // router.push({ name: "notes" });
+        router.go(-1);
       } catch (err) {
         formattedError.value = errHandler(err);
       } finally {
@@ -202,8 +233,7 @@ export default {
     const { value: confirmation } = useField("confirmation");
     const { value: id } = useField("id");
     const cancel = () => {
-      router.push({ name: "login" });
-      resetForm();
+      router.go(-1);
     };
 
     return {

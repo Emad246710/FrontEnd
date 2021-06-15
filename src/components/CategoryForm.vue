@@ -6,7 +6,7 @@
     />
   </div>
 
-  <form @submit="onSubmit">
+  <form  @submit="onSubmit">
     <div class="formContainer">
       <!-- ---------------------------type--------------------------------- -->
       <div class="form-floating">
@@ -46,14 +46,13 @@ import { computed } from "vue";
 import { errHandler } from "../util.js";
 import ErrPresenter from "./ErrPresenter.vue";
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import {
   EDIT_CATEGORY_ACT,
   CREATE_CATEGORY_ACT,
   GET_CATEGORY_ACT,
   GET_CATEGORY_GET,
-  DELETE_CATEGORY_ACT,
 } from "../storeDef.js";
 
 const FormMode = {
@@ -140,7 +139,6 @@ export default {
     const { value: type } = useField("type");
     const cancel = () => {
       router.push({ name: "categories" });
-      resetForm();
     };
 
     return {

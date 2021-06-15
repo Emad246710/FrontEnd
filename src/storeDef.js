@@ -1,10 +1,12 @@
 const URI_ROOT = 'http://localhost:5002'
 
+const IS_VALID_AS_NEW_USERNAME = 'isValidAsNewUsername'
 
-const LOGIN_MUT = 'login';
+
+const SET_USER_DETAILS_MUT = 'setUser';
 const LOGOUT_MUT = 'logout';
 const DELETE_USER_MUT = 'deletetUser';
-const GET_USE_MUT = 'getUser';
+// const GET_USE_MUT = 'getUser';
 
 
 
@@ -46,8 +48,9 @@ const IS_LOGGED_IN = 'isLoggedIn'
 
 export {
     URI_ROOT,
+    IS_VALID_AS_NEW_USERNAME,
 
-    LOGIN_MUT, LOGOUT_MUT,GET_USE_MUT,  DELETE_USER_MUT,
+    SET_USER_DETAILS_MUT, LOGOUT_MUT,  DELETE_USER_MUT,
 
     GET_ALL_NOTES_MUT, GET_NOTE_MUT,  DELETE_NOTE_MUT,
     GET_ALL_CATEGORIES_MUT, GET_CATEGORY_MUT,  DELETE_CATEGORY_MUT,
